@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap">
+  <style>
+    :root{
+      --black:#111111;
+      --gray-900:#1a1a1a;
+      --gray-500:#8a8a8a;
+      --gray-300:#cfcfcf;
+      --gray-200:#e6e6e6;
+      --gray-100:#f4f4f4;
+      --red:#e5484d;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;background:#fff;}
+    body{
+      font-family:'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      color:var(--black);
+      -webkit-font-smoothing:antialiased;
+    }
+    .wrap{
+      max-width:640px;
+      margin:0 auto;
+      padding:48px 24px 80px;
+    }
+    .badge{
+      display:inline-block;
+      background:var(--black);
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.02em;
+      padding:6px 14px;
+      border-radius:999px;
+      margin-bottom:20px;
+    }
+    h1.title{
+      font-size:28px;
+      line-height:1.35;
+      font-weight:900;
+      margin:0 0 28px;
+      letter-spacing:-0.04em;
+    }
+    .intro{
+      font-size:14.5px;
+      line-height:1.7;
+      color:#444;
+      margin:0 0 28px;
+    }
+    .intro b{color:var(--black);}
+    hr.divider{
+      border:none;
+      border-top:1px solid var(--gray-200);
+      margin:0 0 36px;
+    }
+    section.block{margin-bottom:40px;}
+    .sec-head{
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      margin-bottom:22px;
+    }
+    .sec-num{
+      font-size:12px;
+      font-weight:800;
+      color:var(--gray-500);
+      letter-spacing:.03em;
+    }
+    .sec-title{
+      font-size:17px;
+      font-weight:900;
+    }
+    .field{margin-bottom:22px;}
+    label.field-label{
+      display:block;
+      font-size:14.5px;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    label.field-label .req{
+      color:var(--gray-500);
+      font-weight:700;
+      margin-left:2px;
+    }
+    input[type="text"], input[type="tel"], textarea{
+      width:100%;
+      border:none;
+      border-bottom:1px solid var(--gray-300);
+      background:transparent;
+      font-family:inherit;
+      font-size:15px;
+      color:var(--black);
+      padding:10px 2px;
+      outline:none;
+      transition:border-color .15s ease;
+    }
+    input[type="text"]::placeholder, input[type="tel"]::placeholder, textarea::placeholder{
+      color:#b3b3b3;
+    }
+    input[type="text"]:focus, input[type="tel"]:focus, textarea:focus{
+      border-bottom:1.5px solid var(--black);
+    }
+    textarea{
+      resize:vertical;
+      min-height:72px;
+      border:1px solid var(--gray-300);
+      border-radius:10px;
+      padding:12px;
+    }
+    textarea:focus{ border-color:var(--black); }
+
+    .field.error input, .field.error textarea{ border-color:var(--red) !important; }
+    .error-msg{
+      display:none;
+      font-size:12.5px;
+      color:var(--red);
+      margin-top:6px;
+    }
+    .field.error .error-msg{ display:block; }
+
+    /* 옵션 카드 (라디오/체크박스 리스트) */
+    .option-list{
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius);
+      overflow:hidden;
+    }
+    .option-row{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:17px 18px;
+      border-bottom:1px solid var(--gray-200);
+      cursor:pointer;
+      transition:background .12s ease;
+    }
+    .option-row:last-child{ border-bottom:none; }
+    .option-row:hover{ background:var(--gray-100); }
+    .option-row input[type="radio"]{
+      appearance:none;
+      -webkit-appearance:none;
+      width:19px;
+      height:19px;
+      border-radius:50%;
+      border:1.5px solid var(--gray-300);
+      display:grid;
+      place-content:center;
+      flex:none;
+      margin:0;
+      cursor:pointer;
+    }
+    .option-row input[type="radio"]::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--black);
+      transform:scale(0);
+      transition:transform .12s ease;
+    }
+    .option-row input[type="radio"]:checked::before{ transform:scale(1); }
+    .option-row input[type="radio"]:checked{ border-color:var(--black); }
+    .option-row.selected{ background:var(--gray-100); }
+    .option-text{ font-size:14.5px; font-weight:600; }
+    .option-sub{
+      display:block;
+      font-size:12.5px;
+      font-weight:500;
+      color:var(--gray-500);
+      margin-top:2px;
+    }
+
+    /* 시간대 칩 */
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .chip{
+      border:1px solid var(--gray-300);
+      border-radius:10px;
+      padding:13px 18px;
+      font-size:14px;
+      font-weight:600;
+      color:var(--black);
+      cursor:pointer;
+      user-select:none;
+      transition:all .12s ease;
+    }
+    .chip:hover{ border-color:var(--black); }
+    .chip.selected{
+      background:var(--black);
+      border-color:var(--black);
+      color:#fff;
+    }
+
+    .subfield{
+      margin-top:22px;
+      display:none;
+    }
+    .subfield.show{ display:block; }
+
+    .submit-btn{
+      width:100%;
+      background:var(--black);
+      color:#fff;
+      border:none;
+      border-radius:var(--radius);
+      padding:18px;
+      font-size:16px;
+      font-weight:700;
+      font-family:inherit;
+      cursor:pointer;
+      margin-top:8px;
+      transition:opacity .15s ease;
+    }
+    .submit-btn:hover{ opacity:.85; }
+    .submit-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+    .caption{
+      text-align:center;
+      font-size:12.5px;
+      color:var(--gray-500);
+      margin-top:14px;
+    }
+
+    .brand-footer{
+      text-align:center;
+      font-family:Georgia, 'Times New Roman', 'Noto Serif KR', serif;
+      font-size:20px;
+      font-weight:600;
+      letter-spacing:0.32em;
+      color:#8a8a8a;
+      margin-top:56px;
+      padding-top:0;
+      /* 자간이 넓어 마지막 글자가 잘리지 않도록 오른쪽으로 살짝 보정 */
+      padding-right:0.32em;
+    }
+
+    .done-wrap{ display:none; text-align:center; padding:60px 24px; }
+    .done-wrap.show{ display:block; }
+    .done-badge{ font-size:40px; margin-bottom:16px; }
+    .done-title{ font-size:20px; font-weight:800; margin-bottom:10px; }
+    .done-desc{ font-size:14px; color:#555; line-height:1.7; }
+
+    .top-error{
+      display:none;
+      background:#fff3f3;
+      border:1px solid #ffd7d7;
+      color:#c22;
+      font-size:13.5px;
+      font-weight:600;
+      padding:12px 16px;
+      border-radius:10px;
+      margin-bottom:20px;
+    }
+    .top-error.show{ display:block; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="formWrap">
+    <span class="badge">일정 조사</span>
+    <h1 class="title">이브닝 모션 구매고객<br>인터뷰 일정 신청</h1>
+    <p class="intro">
+      이브닝 모션을 구매해 주신 고객님의 생생한 의견을 듣고자 심층 인터뷰를 준비했습니다.<br>
+      전반적으로 구매경로 관련하여 편하게 말씀주시면 되며 약 30분~50분 정도 진행될 예정입니다.<br><br>
+      참여해주신 분께는 소정의 리워드를 증정합니다. <b>*네이버페이 2만원</b><br>
+      아래 가능하신 일정을 체크해주시면 감사하겠습니다.
+    </p>
+    <hr class="divider">
+
+    <div class="top-error" id="topError">필수 항목을 모두 입력·선택해 주세요.</div>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <span class="sec-title">인터뷰 진행 여부</span>
+      </div>
+      <div class="field" id="field-participate">
+        <label class="field-label">참여 가능 여부<span class="req">*</span></label>
+        <div class="option-list" id="participateList"></div>
+        <div class="error-msg">참여 가능 여부를 선택해 주세요.</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <span class="sec-title">기본 정보</span>
+      </div>
+
+      <div class="field" id="field-name">
+        <label class="field-label">성함<span class="req">*</span></label>
+        <input type="text" id="inputName" placeholder="예: 홍길동">
+        <div class="error-msg">성함을 입력해 주세요.</div>
+      </div>
+
+      <div class="field" id="field-phone">
+        <label class="field-label">연락처 (리워드 발송용)<span class="req">*</span></label>
+        <input type="tel" id="inputPhone" placeholder="예: 010-1234-5678">
+        <div class="error-msg">연락처를 입력해 주세요.</div>
+      </div>
+
+      <div class="field" id="field-age">
+        <label class="field-label">연령대<span class="req">*</span></label>
+        <div class="chip-row" id="ageChips"></div>
+        <div class="error-msg">연령대를 선택해 주세요.</div>
+      </div>
+
+      <div class="field" id="field-gender" style="margin-bottom:0;">
+        <label class="field-label">성별<span class="req">*</span></label>
+        <div class="chip-row" id="genderChips"></div>
+        <div class="error-msg">성별을 선택해 주세요.</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <span class="sec-title">인터뷰 가능 일정</span>
+      </div>
+
+      <div class="field" id="field-schedule">
+        <label class="field-label">가능하신 일정을 하나 선택해 주세요<span class="req">*</span></label>
+        <div class="option-list" id="scheduleList"></div>
+        <div class="error-msg">일정을 선택해 주세요.</div>
+      </div>
+
+      <div class="subfield" id="timeslotField">
+        <label class="field-label">가능한 시간대를 모두 선택해 주세요 (중복 선택 가능)<span class="req">*</span></label>
+        <div class="chip-row" id="timeslotChips"></div>
+        <div class="error-msg" id="timeslotError" style="display:none;">시간대를 선택해 주세요.</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <span class="sec-title">인터뷰 방식</span>
+      </div>
+      <div class="field" id="field-method" style="margin-bottom:0;">
+        <label class="field-label">인터뷰 방식을 선택해 주세요<span class="req">*</span></label>
+        <div class="option-list" id="methodList"></div>
+        <div class="error-msg">인터뷰 방식을 선택해 주세요.</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <span class="sec-title">참고 사항 (선택)</span>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <textarea id="inputMemo" placeholder="일정 관련하여 미리 전달하고 싶은 내용이 있다면 자유롭게 남겨주세요."></textarea>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <span class="sec-title">개인정보 수집 및 이용 동의</span>
+      </div>
+      <div class="field" id="field-consent" style="margin-bottom:0;">
+        <label class="field-label" style="font-weight:500; color:#555; margin-bottom:16px;">
+          이름/휴대폰번호는 인터뷰 대상자 선정 및 연락 목적에만 사용됩니다.<span class="req">*</span>
+        </label>
+        <div class="option-list" id="consentList"></div>
+        <div class="error-msg">개인정보 수집 및 이용 동의 여부를 선택해 주세요.</div>
+      </div>
+    </section>
+
+    <button class="submit-btn" id="submitBtn">신청 제출하기</button>
+    <p class="caption">신청해 주셔서 감사합니다 — 일정 확정 후 개별 연락드리겠습니다.</p>
+
+    <div class="brand-footer">SLOU BED</div>
+  </div>
+
+  <div class="done-wrap" id="doneWrap">
+    <div class="done-badge">✅</div>
+    <div class="done-title">신청이 완료되었습니다</div>
+    <div class="done-desc">소중한 시간 내주셔서 감사합니다.<br>일정 확정 후 담당자가 개별 연락드리겠습니다.</div>
+  </div>
+
+  <script>
+    // ⚠️ 배포한 Apps Script 웹앱 URL로 반드시 교체하세요.
+    // Apps Script 편집기 > 배포 > 새 배포 > 웹 앱 실행 후 나오는 /exec 로 끝나는 URL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/여기에_배포_URL_붙여넣기/exec';
+
+    // 고정 시간 옵션(9/18, 9/21)과 "9~11시 중 택1(복수 선택)" 옵션(9/28, 10/1, 10/2, 10/5, 10/9)을 함께 관리
+    const SCHEDULE_OPTIONS = [
+      { id: 'a', label: '9/18(금) 오전 9:00 ~ 10:00', fixed: true, time: '09:00 ~ 10:00' },
+      { id: 'b', label: '9/21(월) 오후 4:00 ~ 5:00',  fixed: true, time: '16:00 ~ 17:00' },
+      { id: 'c', label: '9/21(월) 오후 5:00 ~ 6:00',  fixed: true, time: '17:00 ~ 18:00' },
+      { id: 'd', label: '9/28(월) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+        slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
+      { id: 'e', label: '10/1(목) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+        slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
+      { id: 'f', label: '10/2(금) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+        slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
+      { id: 'g', label: '10/5(월) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+        slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
+      { id: 'h', label: '10/9(금) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+        slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
+    ];
+
+    const AGE_OPTIONS = ['20대 이하', '30대', '40대', '50대 이상'];
+    const GENDER_OPTIONS = ['여성', '남성'];
+    const PARTICIPATE_OPTIONS = ['네, 참여 가능합니다'];
+    const METHOD_OPTIONS = ['구글밋 (Google Meet)', '유선 (전화)'];
+    const CONSENT_OPTIONS = ['동의함', '안함'];
+
+    let selectedScheduleId = null;
+    let selectedTimeSlots = [];
+    let selectedAge = null;
+    let selectedGender = null;
+    let selectedParticipate = null;
+    let selectedMethod = null;
+    let selectedConsent = null;
+
+    const scheduleListEl = document.getElementById('scheduleList');
+    const timeslotFieldEl = document.getElementById('timeslotField');
+    const timeslotChipsEl = document.getElementById('timeslotChips');
+    const ageChipsEl = document.getElementById('ageChips');
+    const genderChipsEl = document.getElementById('genderChips');
+    const participateListEl = document.getElementById('participateList');
+    const methodListEl = document.getElementById('methodList');
+    const consentListEl = document.getElementById('consentList');
+
+    function renderChipGroup(containerEl, options, onPick) {
+      containerEl.innerHTML = '';
+      options.forEach(val => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = val;
+        chip.addEventListener('click', () => {
+          containerEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+          onPick(val);
+        });
+        containerEl.appendChild(chip);
+      });
+    }
+
+    renderChipGroup(ageChipsEl, AGE_OPTIONS, (val) => {
+      selectedAge = val;
+      clearFieldError('field-age');
+    });
+    renderChipGroup(genderChipsEl, GENDER_OPTIONS, (val) => {
+      selectedGender = val;
+      clearFieldError('field-gender');
+    });
+
+    function renderSingleOptionList(containerEl, options, name, fieldId, onPick) {
+      containerEl.innerHTML = '';
+      options.forEach((val, idx) => {
+        const row = document.createElement('label');
+        row.className = 'option-row';
+        row.innerHTML = `
+          <input type="radio" name="${name}" value="${val}">
+          <span class="option-text">${val}</span>
+        `;
+        row.addEventListener('click', () => {
+          containerEl.querySelectorAll('.option-row').forEach(r => {
+            r.classList.remove('selected');
+            r.querySelector('input[type="radio"]').checked = false;
+          });
+          row.classList.add('selected');
+          row.querySelector('input[type="radio"]').checked = true;
+          onPick(val);
+          clearFieldError(fieldId);
+        });
+        containerEl.appendChild(row);
+      });
+    }
+
+    renderSingleOptionList(participateListEl, PARTICIPATE_OPTIONS, 'participate', 'field-participate', (val) => {
+      selectedParticipate = val;
+    });
+    renderSingleOptionList(methodListEl, METHOD_OPTIONS, 'method', 'field-method', (val) => {
+      selectedMethod = val;
+    });
+    renderSingleOptionList(consentListEl, CONSENT_OPTIONS, 'consent', 'field-consent', (val) => {
+      selectedConsent = val;
+    });
+
+    function renderScheduleOptions() {
+      scheduleListEl.innerHTML = '';
+      SCHEDULE_OPTIONS.forEach(opt => {
+        const row = document.createElement('label');
+        row.className = 'option-row';
+        row.dataset.id = opt.id;
+        row.innerHTML = `
+          <input type="radio" name="schedule" value="${opt.id}">
+          <span>
+            <span class="option-text">${opt.label}</span>
+            ${opt.sub ? `<span class="option-sub">${opt.sub}</span>` : ''}
+          </span>
+        `;
+        row.addEventListener('click', () => selectSchedule(opt.id));
+        scheduleListEl.appendChild(row);
+      });
+    }
+
+    function selectSchedule(id) {
+      selectedScheduleId = id;
+      selectedTimeSlots = [];
+      document.querySelectorAll('#scheduleList .option-row').forEach(r => {
+        const isSel = r.dataset.id === id;
+        r.classList.toggle('selected', isSel);
+        r.querySelector('input[type="radio"]').checked = isSel;
+      });
+      clearFieldError('field-schedule');
+
+      const opt = SCHEDULE_OPTIONS.find(o => o.id === id);
+      if (opt && !opt.fixed) {
+        renderTimeslots(opt.slots);
+        timeslotFieldEl.classList.add('show');
+      } else {
+        timeslotFieldEl.classList.remove('show');
+      }
+    }
+
+    function renderTimeslots(slots) {
+      timeslotChipsEl.innerHTML = '';
+      slots.forEach(slot => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = slot;
+        chip.addEventListener('click', () => {
+          const isSelected = chip.classList.toggle('selected');
+          if (isSelected) {
+            if (!selectedTimeSlots.includes(slot)) selectedTimeSlots.push(slot);
+          } else {
+            selectedTimeSlots = selectedTimeSlots.filter(s => s !== slot);
+          }
+          if (selectedTimeSlots.length > 0) {
+            document.getElementById('timeslotError').style.display = 'none';
+          }
+        });
+        timeslotChipsEl.appendChild(chip);
+      });
+    }
+
+    function setFieldError(fieldId) {
+      document.getElementById(fieldId).classList.add('error');
+    }
+    function clearFieldError(fieldId) {
+      document.getElementById(fieldId).classList.remove('error');
+    }
+
+    renderScheduleOptions();
+
+    document.getElementById('inputName').addEventListener('input', () => clearFieldError('field-name'));
+    document.getElementById('inputPhone').addEventListener('input', () => clearFieldError('field-phone'));
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const name = document.getElementById('inputName').value.trim();
+      const phone = document.getElementById('inputPhone').value.trim();
+      const memo = document.getElementById('inputMemo').value.trim();
+      const topError = document.getElementById('topError');
+
+      let valid = true;
+      topError.classList.remove('show');
+
+      if (!name) { setFieldError('field-name'); valid = false; }
+      if (!phone) { setFieldError('field-phone'); valid = false; }
+      if (!selectedAge) { setFieldError('field-age'); valid = false; }
+      if (!selectedGender) { setFieldError('field-gender'); valid = false; }
+      if (!selectedScheduleId) { setFieldError('field-schedule'); valid = false; }
+      if (!selectedParticipate) { setFieldError('field-participate'); valid = false; }
+      if (!selectedMethod) { setFieldError('field-method'); valid = false; }
+      if (!selectedConsent) { setFieldError('field-consent'); valid = false; }
+
+      const opt = SCHEDULE_OPTIONS.find(o => o.id === selectedScheduleId);
+      if (opt && !opt.fixed && selectedTimeSlots.length === 0) {
+        document.getElementById('timeslotError').style.display = 'block';
+        valid = false;
+      }
+
+      if (!valid) {
+        topError.classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const scheduleLabel = opt.label + (opt.sub ? ` (${opt.sub})` : '');
+      const timeSlot = opt.fixed ? opt.time : selectedTimeSlots.join(', ');
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '제출 중...';
+
+      const payload = {
+        name, phone, age: selectedAge, gender: selectedGender,
+        scheduleLabel, timeSlot, memo,
+        participate: selectedParticipate, method: selectedMethod, consent: selectedConsent
+      };
+
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // CORS preflight 방지
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(onSubmitSuccess)
+        .catch(onSubmitFail);
+    });
+
+    function onSubmitSuccess(res) {
+      if (res && res.success) {
+        document.getElementById('formWrap').style.display = 'none';
+        document.getElementById('doneWrap').classList.add('show');
+      } else {
+        onSubmitFail(res && res.error ? { message: res.error } : { message: '알 수 없는 오류' });
+      }
+    }
+
+    function onSubmitFail(err) {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = false;
+      btn.textContent = '신청 제출하기';
+      alert('제출 중 오류가 발생했습니다: ' + (err && err.message ? err.message : err));
+    }
+  </script>
+</body>
+</html>
