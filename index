@@ -131,16 +131,18 @@
       border-radius:var(--radius);
       overflow:hidden;
     }
+    .option-item{
+      border-bottom:1px solid var(--gray-200);
+    }
+    .option-item:last-child{ border-bottom:none; }
     .option-row{
       display:flex;
       align-items:center;
       gap:14px;
       padding:17px 18px;
-      border-bottom:1px solid var(--gray-200);
       cursor:pointer;
       transition:background .12s ease;
     }
-    .option-row:last-child{ border-bottom:none; }
     .option-row:hover{ background:var(--gray-100); }
     .option-row input[type="radio"]{
       appearance:none;
@@ -166,6 +168,30 @@
     }
     .option-row input[type="radio"]:checked::before{ transform:scale(1); }
     .option-row input[type="radio"]:checked{ border-color:var(--black); }
+    .option-row input[type="checkbox"]{
+      appearance:none;
+      -webkit-appearance:none;
+      width:19px;
+      height:19px;
+      border-radius:6px;
+      border:1.5px solid var(--gray-300);
+      display:grid;
+      place-content:center;
+      flex:none;
+      margin:0;
+      cursor:pointer;
+    }
+    .option-row input[type="checkbox"]::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:2px;
+      background:var(--black);
+      transform:scale(0);
+      transition:transform .12s ease;
+    }
+    .option-row input[type="checkbox"]:checked::before{ transform:scale(1); }
+    .option-row input[type="checkbox"]:checked{ border-color:var(--black); }
     .option-row.selected{ background:var(--gray-100); }
     .option-text{ font-size:14.5px; font-weight:600; }
     .option-sub{
@@ -198,6 +224,24 @@
       background:var(--black);
       border-color:var(--black);
       color:#fff;
+    }
+
+    /* 일정 항목별 인라인 시간대 선택 영역 */
+    .schedule-sub{
+      display:none;
+      padding:0 18px 18px 51px;
+    }
+    .schedule-sub.show{ display:block; }
+    .schedule-sub .sub-label{
+      display:block;
+      font-size:12.5px;
+      font-weight:600;
+      color:var(--gray-500);
+      margin-bottom:8px;
+    }
+    .schedule-sub .chip-row .chip{
+      padding:10px 16px;
+      font-size:13px;
     }
 
     .subfield{
@@ -326,16 +370,10 @@
         <span class="sec-title">인터뷰 가능 일정</span>
       </div>
 
-      <div class="field" id="field-schedule">
-        <label class="field-label">가능하신 일정을 하나 선택해 주세요<span class="req">*</span></label>
+      <div class="field" id="field-schedule" style="margin-bottom:0;">
+        <label class="field-label">가능하신 일정을 모두 선택해 주세요 (중복 선택 가능)<span class="req">*</span></label>
         <div class="option-list" id="scheduleList"></div>
-        <div class="error-msg">일정을 선택해 주세요.</div>
-      </div>
-
-      <div class="subfield" id="timeslotField">
-        <label class="field-label">가능한 시간대를 모두 선택해 주세요 (중복 선택 가능)<span class="req">*</span></label>
-        <div class="chip-row" id="timeslotChips"></div>
-        <div class="error-msg" id="timeslotError" style="display:none;">시간대를 선택해 주세요.</div>
+        <div class="error-msg">일정을 1개 이상 선택하고, 필요한 경우 시간대도 선택해 주세요.</div>
       </div>
     </section>
 
@@ -392,20 +430,20 @@
     // Apps Script 편집기 > 배포 > 새 배포 > 웹 앱 실행 후 나오는 /exec 로 끝나는 URL
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/여기에_배포_URL_붙여넣기/exec';
 
-    // 고정 시간 옵션(9/18, 9/21)과 "9~11시 중 택1(복수 선택)" 옵션(9/28, 10/1, 10/2, 10/5, 10/9)을 함께 관리
+    // 고정 시간 옵션(9/18, 9/21)과 "9~11시 중 복수 선택 가능" 옵션(9/28, 10/1, 10/2, 10/5, 10/9)을 함께 관리
     const SCHEDULE_OPTIONS = [
       { id: 'a', label: '9/18(금) 오전 9:00 ~ 10:00', fixed: true, time: '09:00 ~ 10:00' },
       { id: 'b', label: '9/21(월) 오후 4:00 ~ 5:00',  fixed: true, time: '16:00 ~ 17:00' },
       { id: 'c', label: '9/21(월) 오후 5:00 ~ 6:00',  fixed: true, time: '17:00 ~ 18:00' },
-      { id: 'd', label: '9/28(월) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+      { id: 'd', label: '9/28(월) 오전 9:00 ~ 11:00', sub: '시간대 복수 선택 가능', fixed: false,
         slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
-      { id: 'e', label: '10/1(목) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+      { id: 'e', label: '10/1(목) 오전 9:00 ~ 11:00', sub: '시간대 복수 선택 가능', fixed: false,
         slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
-      { id: 'f', label: '10/2(금) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+      { id: 'f', label: '10/2(금) 오전 9:00 ~ 11:00', sub: '시간대 복수 선택 가능', fixed: false,
         slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
-      { id: 'g', label: '10/5(월) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+      { id: 'g', label: '10/5(월) 오전 9:00 ~ 11:00', sub: '시간대 복수 선택 가능', fixed: false,
         slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
-      { id: 'h', label: '10/9(금) 오전 9:00 ~ 11:00', sub: '두 타임 중 택1', fixed: false,
+      { id: 'h', label: '10/9(금) 오전 9:00 ~ 11:00', sub: '시간대 복수 선택 가능', fixed: false,
         slots: ['09:00 ~ 10:00', '10:00 ~ 11:00'] },
     ];
 
@@ -413,10 +451,10 @@
     const GENDER_OPTIONS = ['여성', '남성'];
     const PARTICIPATE_OPTIONS = ['네, 참여 가능합니다'];
     const METHOD_OPTIONS = ['구글밋 (Google Meet)', '유선 (전화)'];
-    const CONSENT_OPTIONS = ['동의함', '안함'];
+    const CONSENT_OPTIONS = ['동의함'];
 
-    let selectedScheduleId = null;
-    let selectedTimeSlots = [];
+    let selectedScheduleIds = new Set();
+    let selectedTimeSlots = {}; // { scheduleId: Set(선택된 시간대) }
     let selectedAge = null;
     let selectedGender = null;
     let selectedParticipate = null;
@@ -424,8 +462,6 @@
     let selectedConsent = null;
 
     const scheduleListEl = document.getElementById('scheduleList');
-    const timeslotFieldEl = document.getElementById('timeslotField');
-    const timeslotChipsEl = document.getElementById('timeslotChips');
     const ageChipsEl = document.getElementById('ageChips');
     const genderChipsEl = document.getElementById('genderChips');
     const participateListEl = document.getElementById('participateList');
@@ -492,59 +528,83 @@
     function renderScheduleOptions() {
       scheduleListEl.innerHTML = '';
       SCHEDULE_OPTIONS.forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'option-item';
+
         const row = document.createElement('label');
         row.className = 'option-row';
         row.dataset.id = opt.id;
         row.innerHTML = `
-          <input type="radio" name="schedule" value="${opt.id}">
+          <input type="checkbox" name="schedule" value="${opt.id}">
           <span>
             <span class="option-text">${opt.label}</span>
             ${opt.sub ? `<span class="option-sub">${opt.sub}</span>` : ''}
           </span>
         `;
-        row.addEventListener('click', () => selectSchedule(opt.id));
-        scheduleListEl.appendChild(row);
+        row.addEventListener('click', (e) => {
+          e.preventDefault();
+          toggleSchedule(opt.id);
+        });
+        item.appendChild(row);
+
+        if (!opt.fixed) {
+          const sub = document.createElement('div');
+          sub.className = 'schedule-sub';
+          sub.id = 'sub-' + opt.id;
+
+          const label = document.createElement('span');
+          label.className = 'sub-label';
+          label.textContent = '가능한 시간대를 모두 선택해 주세요 (중복 선택 가능)';
+          sub.appendChild(label);
+
+          const chipRow = document.createElement('div');
+          chipRow.className = 'chip-row';
+          opt.slots.forEach(slot => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = slot;
+            chip.addEventListener('click', () => {
+              const isSel = chip.classList.toggle('selected');
+              if (!selectedTimeSlots[opt.id]) selectedTimeSlots[opt.id] = new Set();
+              if (isSel) {
+                selectedTimeSlots[opt.id].add(slot);
+              } else {
+                selectedTimeSlots[opt.id].delete(slot);
+              }
+              clearFieldError('field-schedule');
+            });
+            chipRow.appendChild(chip);
+          });
+          sub.appendChild(chipRow);
+          item.appendChild(sub);
+        }
+
+        scheduleListEl.appendChild(item);
       });
     }
 
-    function selectSchedule(id) {
-      selectedScheduleId = id;
-      selectedTimeSlots = [];
-      document.querySelectorAll('#scheduleList .option-row').forEach(r => {
-        const isSel = r.dataset.id === id;
-        r.classList.toggle('selected', isSel);
-        r.querySelector('input[type="radio"]').checked = isSel;
-      });
-      clearFieldError('field-schedule');
+    function toggleSchedule(id) {
+      const row = document.querySelector('#scheduleList .option-row[data-id="' + id + '"]');
+      const checkbox = row.querySelector('input[type="checkbox"]');
+      const nowSelected = !checkbox.checked;
+      checkbox.checked = nowSelected;
+      row.classList.toggle('selected', nowSelected);
+
+      if (nowSelected) {
+        selectedScheduleIds.add(id);
+      } else {
+        selectedScheduleIds.delete(id);
+        if (selectedTimeSlots[id]) selectedTimeSlots[id].clear();
+        const sub = document.getElementById('sub-' + id);
+        if (sub) sub.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      }
 
       const opt = SCHEDULE_OPTIONS.find(o => o.id === id);
       if (opt && !opt.fixed) {
-        renderTimeslots(opt.slots);
-        timeslotFieldEl.classList.add('show');
-      } else {
-        timeslotFieldEl.classList.remove('show');
+        const sub = document.getElementById('sub-' + id);
+        if (sub) sub.classList.toggle('show', nowSelected);
       }
-    }
-
-    function renderTimeslots(slots) {
-      timeslotChipsEl.innerHTML = '';
-      slots.forEach(slot => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.textContent = slot;
-        chip.addEventListener('click', () => {
-          const isSelected = chip.classList.toggle('selected');
-          if (isSelected) {
-            if (!selectedTimeSlots.includes(slot)) selectedTimeSlots.push(slot);
-          } else {
-            selectedTimeSlots = selectedTimeSlots.filter(s => s !== slot);
-          }
-          if (selectedTimeSlots.length > 0) {
-            document.getElementById('timeslotError').style.display = 'none';
-          }
-        });
-        timeslotChipsEl.appendChild(chip);
-      });
+      clearFieldError('field-schedule');
     }
 
     function setFieldError(fieldId) {
@@ -572,15 +632,26 @@
       if (!phone) { setFieldError('field-phone'); valid = false; }
       if (!selectedAge) { setFieldError('field-age'); valid = false; }
       if (!selectedGender) { setFieldError('field-gender'); valid = false; }
-      if (!selectedScheduleId) { setFieldError('field-schedule'); valid = false; }
       if (!selectedParticipate) { setFieldError('field-participate'); valid = false; }
       if (!selectedMethod) { setFieldError('field-method'); valid = false; }
       if (!selectedConsent) { setFieldError('field-consent'); valid = false; }
 
-      const opt = SCHEDULE_OPTIONS.find(o => o.id === selectedScheduleId);
-      if (opt && !opt.fixed && selectedTimeSlots.length === 0) {
-        document.getElementById('timeslotError').style.display = 'block';
+      if (selectedScheduleIds.size === 0) {
+        setFieldError('field-schedule');
         valid = false;
+      } else {
+        // 선택한 일정 중 시간대 선택이 필요한데 아직 안 고른 게 있는지 확인
+        let missingTimeslot = false;
+        selectedScheduleIds.forEach(id => {
+          const opt = SCHEDULE_OPTIONS.find(o => o.id === id);
+          if (opt && !opt.fixed && (!selectedTimeSlots[id] || selectedTimeSlots[id].size === 0)) {
+            missingTimeslot = true;
+          }
+        });
+        if (missingTimeslot) {
+          setFieldError('field-schedule');
+          valid = false;
+        }
       }
 
       if (!valid) {
@@ -589,8 +660,20 @@
         return;
       }
 
-      const scheduleLabel = opt.label + (opt.sub ? ` (${opt.sub})` : '');
-      const timeSlot = opt.fixed ? opt.time : selectedTimeSlots.join(', ');
+      const scheduleParts = [];
+      const timeslotParts = [];
+      SCHEDULE_OPTIONS.forEach(opt => {
+        if (!selectedScheduleIds.has(opt.id)) return;
+        if (opt.fixed) {
+          scheduleParts.push(opt.label);
+        } else {
+          const times = Array.from(selectedTimeSlots[opt.id] || []).join(', ');
+          scheduleParts.push(opt.label + (opt.sub ? ` (${opt.sub})` : ''));
+          timeslotParts.push(opt.label.split(' ')[0] + ': ' + times);
+        }
+      });
+      const scheduleLabel = scheduleParts.join(' / ');
+      const timeSlot = timeslotParts.length ? timeslotParts.join(' / ') : '-';
 
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
